@@ -3,11 +3,15 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { HousingService } from '../housing.service';
 import { Housinglocation } from '../housinglocation';
+import { FormControl,FormGroup,ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule
+  ],
   template: `
     
       <!-- details works! {{housingLocationId}} -->
@@ -27,16 +31,49 @@ import { Housinglocation } from '../housinglocation';
             <li>Does this location have laundry: {{housingLocation?.laundry}}</li>
           </ul>
         </section>
+        <section class="listing-apply">
+          <h2 class="section-heading">Apply now to live here</h2>
+          <form [formGroup]="applyForm" (submit)="submitApplication()">
+
+            <label for="first-name">First Name</label>
+            <input type="text" id="first-name" formControlName="firstName">
+
+            <label for="last-name">Last Name</label>
+            <input type="text" id="last-name" formControlName="lastName">
+
+            <label for="email">Email</label>
+            <input type="email" id="email" formControlName="email">
+
+            <button type="submit" class="primary">Apply Now</button>
+
+          </form>
+
+        </section>
       </article>
     
   `,
   styleUrl: './details.component.css'
 })
 export class DetailsComponent {
+
   route: ActivatedRoute = inject(ActivatedRoute);
   housingService = inject(HousingService);
   housingLocation: Housinglocation | undefined;
   // housingLocationId = -1;
+
+  applyForm = new FormGroup({
+    firstName: new FormControl(''),
+    lastName: new FormControl(''),
+    email: new FormControl('')
+  })
+
+  submitApplication(){
+    this.housingService.submitApplication(
+      this.applyForm.value.firstName ?? '',
+      this.applyForm.value.lastName ?? '',
+      this.applyForm.value.email ?? ''
+    );
+  }
 
   constructor(){
 
